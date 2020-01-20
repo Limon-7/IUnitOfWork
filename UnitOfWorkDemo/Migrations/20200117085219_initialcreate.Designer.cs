@@ -10,8 +10,8 @@ using UnitOfWorkDemo.Data;
 namespace UnitOfWorkDemo.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200115193101_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20200117085219_initialcreate")]
+    partial class initialcreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -71,7 +71,7 @@ namespace UnitOfWorkDemo.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("EnrollmentDate")
+                    b.Property<DateTime?>("EnrollmentDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("FirstName")

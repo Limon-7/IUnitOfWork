@@ -6,7 +6,7 @@ using UnitOfWorkDemo.Models;
 
 namespace UnitOfWorkDemo.Data.Repository
 {
-	interface IStudentRepository:IGenericRepository<Student>
+	public interface IStudentRepository:IGenericRepository<Student>
 	{
 	}
 }

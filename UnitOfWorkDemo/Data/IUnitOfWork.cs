@@ -6,9 +6,9 @@ using UnitOfWorkDemo.Data.Repository;
 
 namespace UnitOfWorkDemo.Data
 {
-	interface IUnitOfWork  :IDisposable
+	public interface IUnitOfWork  :IDisposable
 	{
-		StudentRepository Students { get; }
-		int Complete();
+		IStudentRepository Students { get; }
+		Task<int> Complete();
 	}
 }

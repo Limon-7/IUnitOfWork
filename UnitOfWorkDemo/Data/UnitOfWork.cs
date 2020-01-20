@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnitOfWorkDemo.Data.Repository;
-using UnitOfWorkDemo.Models;
 
 namespace UnitOfWorkDemo.Data
 {
@@ -16,17 +15,31 @@ namespace UnitOfWorkDemo.Data
 			_context = context;
 			Students = new StudentRepository(_context);
 		}
+		public IStudentRepository Students { get; private set; }
 
-		public StudentRepository Students { get; private set; }
-
-		public int Complete()
+		public async Task<int> Complete()
 		{
-			return _context.SaveChanges();
+			return await _context.SaveChangesAsync();
+		}
+
+		private bool disposed = false;
+
+		protected void Dispose(bool disposing)
+		{
+			if (!this.disposed)
+			{
+				if (disposing)
+				{
+					_context.Dispose();
+				}
+			}
+			this.disposed = true;
 		}
 
 		public void Dispose()
 		{
-			_context.Dispose();
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 	}
 }

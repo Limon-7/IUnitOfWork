@@ -69,7 +69,7 @@ namespace UnitOfWorkDemo.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("EnrollmentDate")
+                    b.Property<DateTime?>("EnrollmentDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("FirstName")

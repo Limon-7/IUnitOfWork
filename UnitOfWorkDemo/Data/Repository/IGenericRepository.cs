@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace UnitOfWorkDemo.Data.Repository
 {
 	public interface IGenericRepository<TEntity> where TEntity:class
-	{
+	{	   /*
 		TEntity Get(int id);
-		Task <IEnumerable<TEntity>> GetAll();
+		IEnumerable<TEntity> GetAll();
 		IEnumerable<TEntity> Find(Expression<Func<TEntity,bool>> predict);
 		TEntity SingleOrDefault(Expression<Func<TEntity,bool>> predict);
 
@@ -18,6 +18,21 @@ namespace UnitOfWorkDemo.Data.Repository
 
 		void Remove(TEntity entity);
 		void RemoveRange(IEnumerable<TEntity> entities);
+		*/
 
+		Task<TEntity> GetById(int id);
+		Task<IEnumerable<TEntity>> GetAll();
+		//IEnumerable<TEntity> GetAll();
+
+	IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> predict);
+		TEntity SingleOrDefault(Expression<Func<TEntity, bool>> predict);
+
+		void Modify(TEntity entity);
+
+		void  Add(TEntity entity);
+		void AddRange(IEnumerable<TEntity> entities);
+
+		void Remove(TEntity entity);
+		void RemoveRange(IEnumerable<TEntity> entities);
 	}	  
 }

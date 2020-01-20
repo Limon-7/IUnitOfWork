@@ -15,29 +15,32 @@ namespace UnitOfWorkDemo.Data.Repository
 		{
 			_context = context;
 		}
-		public TEntity Get(int id)
+		public async Task<TEntity> GetById(int id)
 		{
-			return _context.Set<TEntity>().Find(id);
+			return await _context.Set<TEntity>().FindAsync(id);
 		}
 
 		public async Task <IEnumerable<TEntity>> GetAll()
 		{
-		 return	await _context.Set<TEntity>().ToListAsync();
+			
+			return await _context.Set<TEntity>().ToListAsync().ConfigureAwait(true);
 		}
 
-		public IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> predict)
+		
+
+		public  IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> predict)
 		{
-			return _context.Set<TEntity>().Where(predict);
+			return  _context.Set<TEntity>().Where(predict);
 		}
 
 		public TEntity SingleOrDefault(Expression<Func<TEntity, bool>> predict)
 		{
-			return _context.Set<TEntity>().FirstOrDefault(predict);
+			return  _context.Set<TEntity>().FirstOrDefault(predict);
 		}
 
-		public async Task Add(TEntity entity)
+		public void Add(TEntity entity)
 		{
-			await _context.Set<TEntity>().AddAsync(entity);
+			_context.Set<TEntity>().Add(entity);
 		}
 
 		public void AddRange(IEnumerable<TEntity> entities)
@@ -55,6 +58,52 @@ namespace UnitOfWorkDemo.Data.Repository
 			_context.Set<TEntity>().RemoveRange(entities);
 		}
 
-		
+		public  void Modify(TEntity entity)
+		{
+			 _context.Set<TEntity>().Update(entity);
+		}
+		/*
+ * without task asyn
+ public TEntity Get(int id)
+{
+	return _context.Set<TEntity>().Find(id);
+}
+
+public  IEnumerable<TEntity> GetAll()
+{
+ return	 _context.Set<TEntity>().ToList();
+}
+
+public IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> predict)
+{
+	return _context.Set<TEntity>().Where(predict);
+}
+
+public TEntity SingleOrDefault(Expression<Func<TEntity, bool>> predict)
+{
+	return _context.Set<TEntity>().FirstOrDefault(predict);
+}
+
+public async Task Add(TEntity entity)
+{
+	await _context.Set<TEntity>().AddAsync(entity);
+}
+
+public void AddRange(IEnumerable<TEntity> entities)
+{
+	_context.Set<TEntity>().AddRange(entities);
+}
+
+public void Remove(TEntity entity)
+{
+	_context.Set<TEntity>().Remove(entity);
+}
+
+public void RemoveRange(IEnumerable<TEntity> entities)
+{
+	_context.Set<TEntity>().RemoveRange(entities);
+}
+*/
+
 	}
 }

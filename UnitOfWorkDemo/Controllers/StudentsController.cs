@@ -12,12 +12,12 @@ namespace UnitOfWorkDemo.Controllers
 {
     public class StudentsController : Controller
     {
-        private readonly UnitOfWork _unitOfWork;
+		private readonly IUnitOfWork _unitOfWork;
 
-        public StudentsController(UnitOfWork unitOfWork)
+		public StudentsController(IUnitOfWork unitOfWork)
         {
-            _unitOfWork = unitOfWork;
-        }
+			_unitOfWork = unitOfWork;
+		}
 
         // GET: Students
         public async Task<IActionResult> Index()
@@ -26,15 +26,10 @@ namespace UnitOfWorkDemo.Controllers
         }
 
         // GET: Students/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-			var student = await _unitOfWork.Students.SingleOrDefault(m => m.Id == id);
-                //.FirstOrDefaultAsync(m => m.Id == id);
+            var student = await _unitOfWork.Students
+                .GetById(id).ConfigureAwait(false);
             if (student == null)
             {
                 return NotFound();
@@ -49,31 +44,25 @@ namespace UnitOfWorkDemo.Controllers
             return View();
         }
 
-        // POST: Students/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,LastName,FirstName,EnrollmentDate")] Student student)
         {
             if (ModelState.IsValid)
             {
-                await _context.Students.Add(student);
-				_context.Complete();
+				 _unitOfWork.Students.Add(student);
+                await _unitOfWork.Complete();
                 return RedirectToAction(nameof(Index));
             }
             return View(student);
         }
 
         // GET: Students/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var student = await _context.Students.FindAsync(id);
+           
+            var student = await _unitOfWork.Students.GetById(id);
             if (student == null)
             {
                 return NotFound();
@@ -81,51 +70,35 @@ namespace UnitOfWorkDemo.Controllers
             return View(student);
         }
 
-        // POST: Students/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,LastName,FirstName,EnrollmentDate")] Student student)
         {
-            if (id != student.Id)
+			var studentFromRepo = _unitOfWork.Students.Find(x => x.Id == id);
+            if (studentFromRepo==null)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(student);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!StudentExists(student.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                   _unitOfWork.Students.Modify(student);
+                    await _unitOfWork.Complete();
                 return RedirectToAction(nameof(Index));
             }
             return View(student);
         }
 
         // GET: Students/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+			var studentFromRepo = await _unitOfWork.Students.GetById(id);
+			if (studentFromRepo == null)
+			{
+				return NotFound();
+			}
 
-            var student = await _context.Students
-                .FirstOrDefaultAsync(m => m.Id == id);
+			var student = _unitOfWork.Students.SingleOrDefault(x => x.Id == id);
             if (student == null)
             {
                 return NotFound();
@@ -139,15 +112,10 @@ namespace UnitOfWorkDemo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var student = await _context.Students.FindAsync(id);
-            _context.Students.Remove(student);
-            await _context.SaveChangesAsync();
+            var student = await _unitOfWork.Students.GetById(id);
+            _unitOfWork.Students.Remove(student);
+            await _unitOfWork.Complete();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool StudentExists(int id)
-        {
-            return _context.Students.Any(e => e.Id == id);
         }
     }
 }

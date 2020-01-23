@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using UnitOfWorkDemo.Data;
+using UnitOfWorkDemo.Dtos;
 using UnitOfWorkDemo.Models;
 
 namespace UnitOfWorkDemo.Controllers
@@ -13,10 +13,12 @@ namespace UnitOfWorkDemo.Controllers
     public class StudentsController : Controller
     {
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly IMapper _mapper;
 
-		public StudentsController(IUnitOfWork unitOfWork)
+		public StudentsController(IUnitOfWork unitOfWork,IMapper mapper)
         {
 			_unitOfWork = unitOfWork;
+			_mapper = mapper;
 		}
 
         // GET: Students
@@ -25,17 +27,23 @@ namespace UnitOfWorkDemo.Controllers
             return View(await _unitOfWork.Students.GetAll());
         }
 
-        // GET: Students/Details/5
-        public async Task<IActionResult> Details(int id)
+		// GET: Students/Details/5
+		public async Task<IActionResult> Details(int id=0)
         {
-            var student = await _unitOfWork.Students
-                .GetById(id).ConfigureAwait(false);
-            if (student == null)
+            if (id <= 0)
             {
                 return NotFound();
             }
 
-            return View(student);
+			var student = await _unitOfWork.Students.StudentWithEnrollment(id);
+			//var student = await _context.Students.Include(p => p.Enrollments).ThenInclude(p=>p.Course).ThenInclude(p=>p.Department).FirstOrDefaultAsync(p=>p.Id==id);
+			ViewBag.id = id;
+            if (student == null)
+            {
+                return NotFound();
+            }
+			var studentFromRepo = _mapper.Map<StudentsForDetailedDto>(student);
+            return View(studentFromRepo);
         }
 
         // GET: Students/Create
@@ -44,46 +52,71 @@ namespace UnitOfWorkDemo.Controllers
             return View();
         }
 
-        
+        // POST: Students/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,LastName,FirstName,EnrollmentDate")] Student student)
+        public async Task<IActionResult> Create([Bind("LastName,FirstNmae,EnrollmentDate")] StudentForCreationDto student)
         {
             if (ModelState.IsValid)
             {
-				 _unitOfWork.Students.Add(student);
+				var studentToCreate = _mapper.Map<Student>(student);
+                _unitOfWork.Students.Add(studentToCreate);
                 await _unitOfWork.Complete();
-                return RedirectToAction(nameof(Index));
-            }
+				var studentFromRepo = _mapper.Map<StudentsForDetailedDto>(studentToCreate);
+				//int id = studentToCreate.Id;
+				return RedirectToAction(nameof(Index));
+			}
             return View(student);
         }
 
         // GET: Students/Edit/5
+		
         public async Task<IActionResult> Edit(int id)
         {
-           
+            if (id <= 0)
+            {
+                return NotFound();
+            }
+
             var student = await _unitOfWork.Students.GetById(id);
             if (student == null)
             {
                 return NotFound();
             }
+
             return View(student);
         }
-
+		/// <summary>
+		/// Probelm
+		/// </summary>
+		/// <param name="id">View data is unavailable</param>
+		/// <param name="dto"></param>
+		/// <returns></returns>
+        // POST: Students/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,LastName,FirstName,EnrollmentDate")] Student student)
+        public async Task<IActionResult> Edit(int id, [Bind("LastName,FirstNmae")] StudentsForEditDto dto)
         {
-			var studentFromRepo = _unitOfWork.Students.Find(x => x.Id == id);
-            if (studentFromRepo==null)
+			var student = await _unitOfWork.Students.GetById(id);
+            if (student==null)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                   _unitOfWork.Students.Modify(student);
+                try
+                {
+					var studentforUpdate = _mapper.Map(dto,student);
+                    _unitOfWork.Students.Modify(studentforUpdate);
                     await _unitOfWork.Complete();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    throw;
+                }
                 return RedirectToAction(nameof(Index));
             }
             return View(student);
@@ -92,13 +125,12 @@ namespace UnitOfWorkDemo.Controllers
         // GET: Students/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-			var studentFromRepo = await _unitOfWork.Students.GetById(id);
-			if (studentFromRepo == null)
-			{
-				return NotFound();
-			}
+            if (id <= 0)
+            {
+                return NotFound();
+            }
 
-			var student = _unitOfWork.Students.SingleOrDefault(x => x.Id == id);
+            var student = await _unitOfWork.Students.GetById(id);
             if (student == null)
             {
                 return NotFound();
@@ -117,5 +149,6 @@ namespace UnitOfWorkDemo.Controllers
             await _unitOfWork.Complete();
             return RedirectToAction(nameof(Index));
         }
+
     }
 }

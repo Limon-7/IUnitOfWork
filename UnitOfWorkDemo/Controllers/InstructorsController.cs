@@ -10,23 +10,22 @@ using UnitOfWorkDemo.Models;
 
 namespace UnitOfWorkDemo.Controllers
 {
-    public class EnrollmentsController : Controller
+    public class InstructorsController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public EnrollmentsController(ApplicationDbContext context)
+        public InstructorsController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Enrollments
+        // GET: Instructors
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Enrollments.Include(e => e.Course).Include(e => e.Student);
-            return View(await applicationDbContext.ToListAsync());
+            return View(await _context.Instructors.ToListAsync());
         }
 
-        // GET: Enrollments/Details/5
+        // GET: Instructors/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,45 +33,39 @@ namespace UnitOfWorkDemo.Controllers
                 return NotFound();
             }
 
-            var enrollment = await _context.Enrollments
-                .Include(e => e.Course)
-                .Include(e => e.Student)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (enrollment == null)
+            var instructor = await _context.Instructors
+                .FirstOrDefaultAsync(m => m.ID == id);
+            if (instructor == null)
             {
                 return NotFound();
             }
 
-            return View(enrollment);
+            return View(instructor);
         }
 
-        // GET: Enrollments/Create
+        // GET: Instructors/Create
         public IActionResult Create()
         {
-            ViewData["CourseId"] = new SelectList(_context.Courses, "CourseID", "CourseID");
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "FirstNmae");
             return View();
         }
 
-        // POST: Enrollments/Create
+        // POST: Instructors/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Grade,StudentId,CourseId")] Enrollment enrollment)
+        public async Task<IActionResult> Create([Bind("ID,LastName,FirstNmae,HireDate")] Instructor instructor)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(enrollment);
+                _context.Add(instructor);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CourseId"] = new SelectList(_context.Courses, "CourseID", "CourseID", enrollment.CourseId);
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "FirstNmae", enrollment.StudentId);
-            return View(enrollment);
+            return View(instructor);
         }
 
-        // GET: Enrollments/Edit/5
+        // GET: Instructors/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -80,24 +73,22 @@ namespace UnitOfWorkDemo.Controllers
                 return NotFound();
             }
 
-            var enrollment = await _context.Enrollments.FindAsync(id);
-            if (enrollment == null)
+            var instructor = await _context.Instructors.FindAsync(id);
+            if (instructor == null)
             {
                 return NotFound();
             }
-            ViewData["CourseId"] = new SelectList(_context.Courses, "CourseID", "CourseID", enrollment.CourseId);
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "FirstNmae", enrollment.StudentId);
-            return View(enrollment);
+            return View(instructor);
         }
 
-        // POST: Enrollments/Edit/5
+        // POST: Instructors/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Grade,StudentId,CourseId")] Enrollment enrollment)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,LastName,FirstNmae,HireDate")] Instructor instructor)
         {
-            if (id != enrollment.Id)
+            if (id != instructor.ID)
             {
                 return NotFound();
             }
@@ -106,12 +97,12 @@ namespace UnitOfWorkDemo.Controllers
             {
                 try
                 {
-                    _context.Update(enrollment);
+                    _context.Update(instructor);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!EnrollmentExists(enrollment.Id))
+                    if (!InstructorExists(instructor.ID))
                     {
                         return NotFound();
                     }
@@ -122,12 +113,10 @@ namespace UnitOfWorkDemo.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CourseId"] = new SelectList(_context.Courses, "CourseID", "CourseID", enrollment.CourseId);
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "FirstNmae", enrollment.StudentId);
-            return View(enrollment);
+            return View(instructor);
         }
 
-        // GET: Enrollments/Delete/5
+        // GET: Instructors/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -135,32 +124,30 @@ namespace UnitOfWorkDemo.Controllers
                 return NotFound();
             }
 
-            var enrollment = await _context.Enrollments
-                .Include(e => e.Course)
-                .Include(e => e.Student)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (enrollment == null)
+            var instructor = await _context.Instructors
+                .FirstOrDefaultAsync(m => m.ID == id);
+            if (instructor == null)
             {
                 return NotFound();
             }
 
-            return View(enrollment);
+            return View(instructor);
         }
 
-        // POST: Enrollments/Delete/5
+        // POST: Instructors/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var enrollment = await _context.Enrollments.FindAsync(id);
-            _context.Enrollments.Remove(enrollment);
+            var instructor = await _context.Instructors.FindAsync(id);
+            _context.Instructors.Remove(instructor);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool EnrollmentExists(int id)
+        private bool InstructorExists(int id)
         {
-            return _context.Enrollments.Any(e => e.Id == id);
+            return _context.Instructors.Any(e => e.ID == id);
         }
     }
 }

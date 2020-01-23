@@ -15,6 +15,7 @@ namespace UnitOfWorkDemo.Data
 		public DbSet<Instructor> Instructors { get; set; }
 		public DbSet<OfficeAssignment> OfficeAssignments { get; set; }
 		public DbSet<Student> Students { get; set; }
+		public DbSet<CourseInstructor> CourseInstructors { get; set; }
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)

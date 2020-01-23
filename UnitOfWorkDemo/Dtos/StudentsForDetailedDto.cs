@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using UnitOfWorkDemo.Models;
 
-namespace UnitOfWorkDemo.Models
+namespace UnitOfWorkDemo.Dtos
 {
-	public class Student
+	public class StudentsForDetailedDto
 	{
-		public int Id { get; set; }
 		[Required]
 		[StringLength(50)]
 		[Display(Name = "Last Name")]
@@ -25,20 +25,9 @@ namespace UnitOfWorkDemo.Models
 				return FirstNmae + " " + LastName;
 			}
 		}
-		
+		[DataType(DataType.Date)]
 		public DateTime? EnrollmentDate { get; set; }
-		#region
-		//// <summary> 
-		///relationship
-		/*	 MANY-TO-ONE(<Student>1------*<Enrollment>)
-	   * <Enrollment> Entity is Dependent entity create one-to-many reltionship with principle<Student> Enitity and <Enrollment> Entity holds the foreign key
-	   * many-to-one relationship with Instructors
-	   * 	multiple<Enrollment> entities allow us to add to a <Student> Entity
-	   */
-		/// </summary>
-		#endregion
-
-
+		public int Count { get; set; }
 		public ICollection<Enrollment> Enrollments { get; set; }
 	}
 }

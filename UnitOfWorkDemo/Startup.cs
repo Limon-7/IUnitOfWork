@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -27,6 +28,7 @@ namespace UnitOfWorkDemo
 		{
 			services.AddDbContext<ApplicationDbContext>(x=>x.UseSqlServer(Configuration.GetConnectionString("Connection")));
 			services.AddScoped<IUnitOfWork, UnitOfWork>();
+			services.AddAutoMapper(typeof(Startup));
 			services.AddControllersWithViews();
 		}
 

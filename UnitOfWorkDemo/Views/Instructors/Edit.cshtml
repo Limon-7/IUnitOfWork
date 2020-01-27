@@ -1,8 +1,9 @@
 ﻿@model UnitOfWorkDemo.Models.Instructor
+@*@model UnitOfWorkDemo.Dtos.CourseAssaign*@
 
 @{
-    ViewData["Title"] = "Edit";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "Edit";
+	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h1>Edit</h1>
@@ -10,7 +11,7 @@
 <h4>Instructor</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+	<div class="col-md-4">
 		<form asp-action="Edit">
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<input type="hidden" asp-for="ID" />
@@ -35,16 +36,42 @@
 				<span asp-validation-for="OfficeAssignment.Location" class="text-danger"></span>
 			</div>
 			<div class="form-group">
-				<input type="submit" value="Save" class="btn btn-primary" />
-			</div>
-		</form>
-    </div>
-</div>
+				<div class="col-md-10">
+					<table>
+						<tr>
+							@{
+								int count = 0;
+								List<UnitOfWorkDemo.Dtos.CourseAssaign> courses = ViewBag.Courses;
+								foreach (var course in courses)
+								{
+									if (count++ % 3 == 0)
+									{
+									@:</tr><tr>
+									}
+									@:<td>
+										<input type="checkbox"
+											   name="selectedCourses"
+											   value="@course.CourseId"
+											   @(Html.Raw(course.Assaigned ? "checked=\"checked\"" : "")) />
+										@course.CourseId @:  @course.Title
+									@:</td>
+								}
+							@:</tr>
+							}
+						</table>
+					</div>
+				</div>
+				<div class="form-group">
+					<input type="submit" value="Save" class="btn btn-primary" />
+				</div>
+			</form>
+		</div>
+	</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+	<div>
+		<a asp-action="Index">Back</a>
+	</div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+	@section Scripts {
+		@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+	}
